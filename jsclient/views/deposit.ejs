@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Deposit</title>
+</head>
+<body>
+    <form id="deposit-form" class="account-form" method="POST" action="/deposit">
+        <input type="text" name="name" placeholder="Name"><br><br>
+        <input type="number" name="depositAmount" placeholder="Deposit Amount"><br><br>
+        <!-- <input type="password" name="password" placeholder="Password"><br><br> -->
+        <input type="submit" value="Deposit Button">
+    </form>
+    <div>
+        <input type="submit" value="TransferPage" onclick="goToTransferPage()">
+    </div>
+    <script type="text/javascript">
+        function goToTransferPage(){
+            location.href = "/transfer";
+        }
+    </script>
+</body>
+</html>

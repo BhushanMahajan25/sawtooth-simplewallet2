@@ -1,0 +1,5 @@
+1. create user keys for sawtooth
+2. enter username and amount
+3. click submit button
+4. in post(/deposit)
+    1.receive
