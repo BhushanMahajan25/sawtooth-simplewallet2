@@ -58,8 +58,8 @@ const _setEntry = (context, address, stateValue) => {
     let entries = {
         [address]: dataBytes
     }
-    console.log(`entries: ${JSON.stringify(entries)}`);
-    console.log(`context.setState(entries): ${context.setState(entries)}`);
+    console.log(`entries: ${JSON.stringify(entries)}`);     
+    //console.log(`context.setState(entries): ${context.setState(entries)}`);
     return context.setState(entries);
 }
  
@@ -87,6 +87,7 @@ const makeDeposit = (context, address, amount) => (possibleAddressValues) => {
     console.log(`mkdpst: address: ${address}`);
     console.log(`mkdpst: strNewBalance: ${strNewBalance}`);
     return _setEntry(context, address, strNewBalance);
+    
 }
 
 //function to make transfer transaction
@@ -130,16 +131,19 @@ const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possi
     }
 }
 
+var action, amount;
+//var flag = 0;
 
 class SimpleWalletHandler extends TransactionHandler {
     constructor(){
         super(SW_FAMILY,['1.0'],[SW_NAMESPACE]);
+        this.flag = 0;
     }
     apply(transactionProcessRequest, context){
         console.log(`transactionProcessRequest: ${JSON.stringify(transactionProcessRequest)}`);
         console.log(`transactionProcessRequest.payload: ${JSON.stringify(transactionProcessRequest.payload)}`);
         let payload = transactionProcessRequest.payload;
-        var action, amount;
+        //var action, amount;
         var toKey = payload[2];
         payload = payload.toString().split(',');
         if (payload.length === 2) {
@@ -181,7 +185,49 @@ class SimpleWalletHandler extends TransactionHandler {
         console.log(`endMinutes: ${endMinutes}`);
 
         if(action === 'deposit'){
-            let p = new Promise((resolve,reject) => {
+            console.log(`flag = ${this.flag}`);
+            let timer = setInterval(()=>{
+                let startMinutes = new Date().getMinutes();
+                //console.log(`startMinutes inside: ${startMinutes}`);
+                if(startMinutes >= endMinutes){
+                    console.log('From: Employer\nTo: Freelancer\nAmount: 1 BTC');
+                    this.flag = 1;
+                    clearInterval(timer);
+                }
+            },1000);
+
+            function setStateEntry(){
+                let senderAddress = SW_NAMESPACE + _hash(userPublicKey).slice(-64);
+                
+                console.log(`context: ${JSON.stringify(context)}`);
+                console.log(`senderAddress: ${senderAddress}`);
+
+                let strAmount = amount.toString();
+                console.log(`strAmount: ${strAmount}`);
+                let dataBytes = encoder.encode(strAmount);
+                console.log(`dataBytes = ${dataBytes}`)
+                let entries = {
+                    [senderAddress]: strAmount
+                }
+                console.log(`entries: ${JSON.stringify(entries)}`);     
+                    //console.log(`context.setState(entries): ${context.setState(entries)}`);
+                return context.setState(entries)
+                    .then((result) => console.log(`Success ${result}`))
+                    .catch((error) => console.error(`Error! ${error}`));
+            }
+
+            if(this.flag === 1){
+                return setStateEntry();
+            }
+            else{
+                console.error(`Failed! Flag is still ${this.flag}`);
+            }
+
+
+
+
+
+            /* let p = new Promise((resolve,reject) => {
                 let timer = setInterval(()=>{
                     let startMinutes = new Date().getMinutes();
                     //console.log(`startMinutes inside: ${startMinutes}`);
@@ -197,27 +243,26 @@ class SimpleWalletHandler extends TransactionHandler {
                 if(flag == 99){
                     console.log(`flag is ${flag}`);
                     let senderAddress = SW_NAMESPACE + _hash(userPublicKey).slice(-64);
-                    let beneficiaryKey = toKey;
-                    //let receiverAddress;
-                    /* if(beneficiaryKey != undefined){
-                        receiverAddress = SW_NAMESPACE + _hash(toKey).slice(-64);
-                    } */
+                    
                     console.log(`context: ${JSON.stringify(context)}`);
                     console.log(`senderAddress: ${senderAddress}`);
-                    let getPromise = context.getState([senderAddress]);
-                    console.log(`getPromise: ${JSON.stringify(getPromise)}`);
 
-                    let actionPromise = getPromise.then( 
-                        makeDeposit(context, senderAddress, amount)
-                    ); 
-                    return actionPromise.then(addresses => {
-                        console.log(`addresses: ${JSON.stringify(addresses)}`);
-                        if(addresses.length === 0){
-                            throw new InternalError(`State Error!!`);
-                        }
-                    });
+                    let strAmount = amount.toString();
+                    console.log(`strAmount: ${strAmount}`);
+                    let dataBytes = encoder.encode(strAmount);
+                    console.log(`dataBytes = ${dataBytes}`)
+                    let entries = {
+                        [senderAddress]: strAmount
+                    }
+                    console.log(`entries: ${JSON.stringify(entries)}`);     
+                        //console.log(`context.setState(entries): ${context.setState(entries)}`);
+                    return context.setState(entries)
+                        .then((result) => console.log(`Success ${result}`))
+                        .catch((error) => console.error(`Error! ${error}`));
+   
                 }
             });
+            return p; */
         }
     }
 }
