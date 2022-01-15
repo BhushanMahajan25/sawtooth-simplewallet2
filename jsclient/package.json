@@ -25,7 +25,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "sawtooth-sdk": "^1.0.5",
-    "shelljs": "^0.8.3",
+    "shelljs": "^0.8.5",
     "text-encoding": "^0.7.0"
   }
 }
